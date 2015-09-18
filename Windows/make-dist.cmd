@@ -7,8 +7,9 @@ REM *************************************************************************
 @ECHO OFF
 
 SET QTDIR="D:\Qt\5.5\msvc2013\bin"
+SET SRCDIR="..\..\Qt-SESAM"
 SET DESTDIR="QtSESAM-portable"
-SET BUILDDIR="..\..\..\QtSESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
+SET BUILDDIR="..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
 SET PATH=%PATH%;C:\Program Files\7-Zip;D:\Developer\NSIS\
 SET INSTALLER_GLOB="Qt-SESAM-*-setup.exe"
 
@@ -27,8 +28,8 @@ IF NOT EXIST %DESTDIR%\platforms MKDIR %DESTDIR%\platforms
 IF NOT EXIST %DESTDIR%\resources\images MKDIR %DESTDIR%\resources\images
 
 ECHO Copying files to %DESTDIR% ...
-COPY /B ..\..\LICENSE %DESTDIR% >NUL
-COPY /B ..\..\LIESMICH.txt %DESTDIR% >NUL
+COPY /B %SRCDIR%\LICENSE %DESTDIR% >NUL
+COPY /B %SRCDIR%\LIESMICH.txt %DESTDIR% >NUL
 COPY /B x86\ssleay32.dll %DESTDIR% >NUL
 COPY /B x86\libeay32.dll %DESTDIR% >NUL
 COPY /B x86\msvcp120.dll %DESTDIR% >NUL
@@ -45,16 +46,14 @@ COPY /B %QTDIR%\..\plugins\platforms\qminimal.dll %DESTDIR%\platforms >NUL
 COPY /B %QTDIR%\..\plugins\platforms\qwindows.dll %DESTDIR%\platforms >NUL
 COPY /B %BUILDDIR%\Qt-SESAM.exe %DESTDIR% >NUL
 COPY /B ..\resources\images\* %DESTDIR%\resources\images >NUL
-COPY /Y NUL %DESTDIR%\PORTABLE >NUL
+ECHO Removing this file will disable portability.>%DESTDIR%\PORTABLE
 
 ECHO Build compressed archives ...
 7z a -t7z -mmt=on %DESTDIR%.7z %DESTDIR%
 7z a -tZip -mmt=on %DESTDIR%.zip %DESTDIR%
 
 ECHO Launching installer script ...
-makensis.exe /V4 Qt-SESAM.nsi
+makensis.exe /V4 Qt-SESAM-x86.nsi
 
 ECHO Generating hash files ...
-HashMaster.exe %INSTALLER_GLOB%
-HashMaster.exe %DESTDIR%.7z
-HashMaster.exe %DESTDIR%.zip
+HashMaster.exe %INSTALLER_GLOB% %DESTDIR%.7z %DESTDIR%.zip
