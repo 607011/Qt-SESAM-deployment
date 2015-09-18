@@ -1,12 +1,13 @@
 !define VERSIONMAJOR "2"
 !define VERSIONMINOR "0"
-!define VERSIONPATCH ".5-pre"
+!define VERSIONPATCH ".5"
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}${VERSIONPATCH}"
 !define GUID "{f25f512a-7d58-4e2f-a52b-3663fd8ca813}"
 !define APP "Qt-SESAM"
 !define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
 !define QTDIR "D:\Qt\5.5\msvc2013_64\bin"
 !define SRCDIR "..\..\Qt-SESAM"
+!define BUILDDIR "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_64bit-Release\Qt-SESAM\release"
 
 Name "${APP} ${VERSION}"
 OutFile "${APP}-${VERSION}-x64-setup.exe"
@@ -44,7 +45,7 @@ SectionEnd
 
 Page license
 
-  LicenseData "$SRCDIR\LICENSE"
+  LicenseData "${SRCDIR}\LICENSE"
 
 Page directory
 
@@ -55,8 +56,8 @@ Section "${APP}"
   SetOutPath "$INSTDIR"
   CreateDirectory "$INSTDIR\resources"
   CreateDirectory "$INSTDIR\resources\images"
-  File "..\..\..\QtSESAM-Desktop_Qt_5_5_0_MSVC2013_64bit-Release\Qt-SESAM\release\${APP}.exe"
-  File "..\..\LICENSE"
+  File "${BUILDDIR}\${APP}.exe"
+  File "${SRCDIR}\LICENSE"
   File "x64\libeay32.dll"
   File "x64\ssleay32.dll"
   File "${QTDIR}\Qt5Core.dll"
@@ -89,7 +90,7 @@ Section "${APP}"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "EstimatedSize" "$0"
 
   SetOutPath "$INSTDIR\resources\images"
-  File /a /r "..\resources\images\"
+  File /a /r "${SRCDIR}\Qt-SESAM\resources\images\"
 
   SetOutPath "$INSTDIR"
 
