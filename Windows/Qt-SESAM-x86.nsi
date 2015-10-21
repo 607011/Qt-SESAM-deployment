@@ -1,6 +1,6 @@
 !define VERSIONMAJOR "2"
-!define VERSIONMINOR "0"
-!define VERSIONPATCH ".5"
+!define VERSIONMINOR "5"
+!define VERSIONPATCH ".0-DEV"
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}${VERSIONPATCH}"
 !define GUID "{f25f512a-7d58-4e2f-a52b-3663fd8ca813}"
 !define APP "Qt-SESAM"
@@ -8,6 +8,11 @@
 !define QTDIR "D:\Qt\5.5\msvc2013\bin"
 !define SRCDIR "..\..\Qt-SESAM"
 !define BUILDDIR "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
+!define BUILDDIR_CHROME_EXT "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\SESAM2Chrome\release"
+!define CHROME_EXT "SESAM2Chrome"
+!define CHROME_EXT_ID "lanalodgfojhbdieabchpalhhnfaiami"
+!define CHROME_EXT_SRC "${SRCDIR}\${CHROME_EXT}\extension"
+!define PATH_TO_CHROME "C:\Program Files (x86)\Google\Chrome\Application"
 
 Name "${APP} ${VERSION}"
 OutFile "${APP}-${VERSION}-x86-setup.exe"
@@ -50,7 +55,6 @@ Page license
 Page directory
 
 Page instfiles
-
 
 Section "${APP}"
   SetOutPath "$INSTDIR"
@@ -110,6 +114,13 @@ Section "${APP}"
 SectionEnd
 
 
+Section "Chrome Extension"
+  WriteRegStr HKCU "Software\Google\Chrome\NativeMessagingHosts\de.ct.qtsesam" "" "${CHROME_EXT_SRC}\manifest.json"
+  File "${BUILDDIR_CHROME_EXT}\${CHROME_EXT}.exe"
+  ExecWait '"${PATH_TO_CHROME}\chrome.exe" --load-extension=${CHROME_EXT}.crx'
+SectionEnd
+
+
 Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\${APP}"
   CreateShortCut "$SMPROGRAMS\${APP}\${APP} ${VERSION}.lnk" "$INSTDIR\${APP}.exe"
@@ -146,6 +157,8 @@ Section "Uninstall"
   Delete "$INSTDIR\platforms\qminimal.dll"
   Delete "$INSTDIR\platforms\qwindows.dll"
   RMDir "$INSTDIR\platforms"
+
+  Delete "$INSTDIR\${CHROME_EXT}.exe"
 
   Delete "$DESKTOP\${APP}-${VERSION}.lnk"
   Delete "$SMPROGRAMS\${APP}\*.*"

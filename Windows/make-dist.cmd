@@ -33,6 +33,7 @@ DEL %DESTDIR_X86%.7z.txt >NUL
 DEL %INSTALLER_GLOB% >NUL
 DEL %INSTALLER_GLOB%.txt >NUL
 
+
 ECHO Making directories in %DESTDIR_X86% ...
 
 IF NOT EXIST %DESTDIR_X86% MKDIR %DESTDIR_X86%
@@ -44,6 +45,49 @@ ECHO Making directories in %DESTDIR_X64% ...
 IF NOT EXIST %DESTDIR_X64% MKDIR %DESTDIR_X86%
 IF NOT EXIST %DESTDIR_X64%\platforms MKDIR %DESTDIR_X64%\platforms
 IF NOT EXIST %DESTDIR_X64%\resources\images MKDIR %DESTDIR_X64%\resources\images
+
+
+ECHO Copying files to %DESTDIR_X86% ...
+
+COPY /B %SRCDIR%\LICENSE %DESTDIR_X86% >NUL
+COPY /B %SRCDIR%\LIESMICH.txt %DESTDIR_X86% >NUL
+COPY /B x86\ssleay32.dll %DESTDIR_X86% >NUL
+COPY /B x86\libeay32.dll %DESTDIR_X86% >NUL
+COPY /B x86\msvcp120.dll %DESTDIR_X86% >NUL
+COPY /B x86\msvcr120.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\Qt5Core.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\Qt5Gui.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\Qt5Widgets.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\Qt5Network.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\Qt5Concurrent.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\icudt54.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\icuin54.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\icuuc54.dll %DESTDIR_X86% >NUL
+COPY /B %QTDIR_X86%\..\plugins\platforms\qminimal.dll %DESTDIR_X86%\platforms >NUL
+COPY /B %QTDIR_X86%\..\plugins\platforms\qwindows.dll %DESTDIR_X86%\platforms >NUL
+COPY /B %BUILDDIR_X86%\Qt-SESAM.exe %DESTDIR_X86% >NUL
+COPY /B ..\resources\images\* %DESTDIR_X86%\resources\images >NUL
+ECHO Removing this file will disable portability.>%DESTDIR_X86%\PORTABLE
+
+COPY /B %SRCDIR%\LICENSE %DESTDIR_X64% >NUL
+COPY /B %SRCDIR%\LIESMICH.txt %DESTDIR_X64% >NUL
+COPY /B X64\ssleay32.dll %DESTDIR_X64% >NUL
+COPY /B X64\libeay32.dll %DESTDIR_X64% >NUL
+COPY /B X64\msvcp120.dll %DESTDIR_X64% >NUL
+COPY /B X64\msvcr120.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\Qt5Core.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\Qt5Gui.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\Qt5Widgets.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\Qt5Network.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\Qt5Concurrent.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\icudt54.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\icuin54.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\icuuc54.dll %DESTDIR_X64% >NUL
+COPY /B %QTDIR_X64%\..\plugins\platforms\qminimal.dll %DESTDIR_X64%\platforms >NUL
+COPY /B %QTDIR_X64%\..\plugins\platforms\qwindows.dll %DESTDIR_X64%\platforms >NUL
+COPY /B %BUILDDIR_X64%\Qt-SESAM.exe %DESTDIR_X64% >NUL
+COPY /B ..\resources\images\* %DESTDIR_X64%\resources\images >NUL
+ECHO Removing this file will disable portability.>%DESTDIR_X64%\PORTABLE
 
 ECHO Copying files to %DESTDIR_X86% ...
 
@@ -107,3 +151,5 @@ HashMaster.exe %DESTDIR_X86%.7z
 HashMaster.exe %DESTDIR_X86%.zip
 HashMaster.exe %DESTDIR_X64%.7z
 HashMaster.exe %DESTDIR_X64%.zip
+
+:end
