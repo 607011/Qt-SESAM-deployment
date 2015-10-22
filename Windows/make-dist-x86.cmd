@@ -13,7 +13,6 @@ SET QTDIR_X86="D:\Qt\5.5\msvc2013\bin"
 SET BUILDDIR_X86="..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
 SET PATH=%PATH%;C:\Program Files\7-Zip;D:\Developer\NSIS\
 SET INSTALLER_GLOB="Qt-SESAM-*-setup.exe"
-SET /P CHROME="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
 ECHO Removing old files ...
 
@@ -26,12 +25,10 @@ REM DEL %DESTDIR_X86%.7z.txt >NUL
 DEL %INSTALLER_GLOB% >NUL
 DEL %INSTALLER_GLOB%.txt >NUL
 
-START "" "%CHROME%" "--pack-extension=D:\Workspace\Qt-SESAM\SESAM2Chrome\extension"
-REM START "Packing extension ..." /WAIT "%CHROME --pack-extension=%CHROME_EXT_DIR"
-GOTO end
-MOVE %CHROME_EXT_DIR%.crx SESAM2Chrome.crx
-
-
+DEL SESAM2Chrome.zip >NUL
+7z a -mmt=on SESAM2Chrome.zip %CHROME_EXT_DIR%\*
+START "" "bin/buildcrx-v1.0.exe" SESAM2Chrome.zip SESAM2Chrome.pem SESAM2Chrome.crx
+SET CHROME_EXT_ID="lanalodgfojhbdieabchpalhhnfaiami"
 
 ECHO Making directories in %DESTDIR_X86% ...
 
@@ -67,13 +64,12 @@ makensis.exe /V4 Qt-SESAM-x86.nsi
 
 ECHO Build compressed archives ...
 
-REM 7z a -t7z -mmt=on %DESTDIR_X86%.7z %DESTDIR_X86%
 7z a -tZip -mmt=on %DESTDIR_X86%.zip %DESTDIR_X86%
 
 ECHO Generating hash files ...
 
-HashMaster.exe %INSTALLER_GLOB%
-REM HashMaster.exe %DESTDIR_X86%.7z
-HashMaster.exe %DESTDIR_X86%.zip
+bin\HashMaster.exe %INSTALLER_GLOB%
+bin\HashMaster.exe %DESTDIR_X86%.zip
+bin\HashMaster.exe %DESTDIR_X86%.zip
 
 :end
