@@ -82,6 +82,32 @@ def main():
     ext_id = get_extension_id(CHROME_EXT_NAME + ".crx")
     print "  id = " + ext_id
 
+    print "Making directories ..."
+    if not os.path.exists(DESTDIR): os.mkdir(DESTDIR)
+    if not os.path.exists(DESTDIR + "\\platforms"): os.mkdir(DESTDIR + "\\platforms")
+    # if not os.path.exists(DESTDIR + "\\resources"): os.mkdir(DESTDIR + "\\resources")
+    # if not os.path.exists(DESTDIR + "\\resources\\images"): os.mkdir(DESTDIR + "\\resources\\images")
+
+    print "Copying files ..."
+    shutil.copy(SRCDIR + "\\LICENSE", DESTDIR)
+    shutil.copy(SRCDIR + "\\LIESMICH.txt", DESTDIR)
+    shutil.copy("x86\\ssleay32.dll", DESTDIR)
+    shutil.copy("x86\\libeay32.dll", DESTDIR)
+    shutil.copy("x86\\msvcp120.dll", DESTDIR)
+    shutil.copy("x86\\msvcr120.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\Qt5Core.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\Qt5Gui.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\Qt5Widgets.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\Qt5Network.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\Qt5Concurrent.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\icudt54.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\icuin54.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\icuuc54.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\..\\plugins\\platforms\\qminimal.dll", DESTDIR + "\\platforms")
+    shutil.copy(QTDIR + "\\..\\plugins\\platforms\\qwindows.dll", DESTDIR + "\\platforms")
+    shutil.copy(BUILDDIR + "\\Qt-SESAM.exe", DESTDIR)
+    shutil.copytree(SRCDIR + "\\Qt-SESAM\\resources\\images", DESTDIR + "\\resources\\images")
+
 
 if __name__ == '__main__':
     main()
