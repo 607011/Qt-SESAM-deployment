@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import struct, hashlib, string, sys, shutil, os, array
+import struct, hashlib, sys, string, shutil, os, array, glob
 from subprocess import *
 
 SRCDIR="..\\..\\Qt-SESAM"
@@ -25,7 +25,7 @@ CHROME_EXT_DIR="D:\\Workspace\\Qt-SESAM\\SESAM2Chrome\\extension"
 DESTDIR="QtSESAM-portable"
 QTDIR="D:\\Qt\\5.5\\msvc2013\\bin"
 BUILDDIR="..\\..\\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\\Qt-SESAM\\release"
-PATH_TO_NSIS="D:\\Developer\NSIS\\nsis.exe"
+PATH_TO_NSIS="D:\\Developer\\NSIS\\makensis.exe"
 PATH_TO_7ZIP="C:\\Program Files\\7-Zip\\7z.exe"
 INSTALLER_GLOB="Qt-SESAM-*-setup.exe"
 
@@ -37,17 +37,40 @@ def get_pub_key_from_crx(crx_file):
     pubkey = struct.unpack('<%ds' % header[2], data[16:16+header[2]])[0]
     return pubkey
 
+
 def get_extension_id(crx_file):
     pubkey = get_pub_key_from_crx(crx_file)
     digest = hashlib.sha256(pubkey).hexdigest()
 
-    trans = string.maketrans('0123456789abcdef', string.ascii_lowercase[:16])
-    return string.translate(digest[:32], trans)
+    trans = str.maketrans('0123456789abcdef', string.ascii_lowercase[:16])
+    return str.translate(digest[:32], trans)
 
 
 def rm(fn):
     if os.access(fn, os.W_OK):
         os.remove(fn)
+
+
+def writeHashFile(fn):
+    filename = os.path.basename(fn)
+    out = open(filename + ".txt", "w")
+    out.write("*" + filename + ".txt\n")
+    md5 = hashlib.md5()
+    sha1 = hashlib.sha1()
+    sha256 = hashlib.sha256()
+    sha512 = hashlib.sha512()
+    with open(fn, 'rb') as afile:
+        buf = afile.read()
+        md5.update(buf)
+        sha1.update(buf)
+        sha256.update(buf)
+        sha512.update(buf)
+    out.write("MD5:    " + md5.hexdigest() + "\n")
+    out.write("SHA1:   " + sha1.hexdigest() + "\n")
+    out.write("SHA256: " + sha256.hexdigest() + "\n")
+    out.write("SHA512: " + sha512.hexdigest() + "\n")
+    out.close()
+
 
 def main():
     shutil.rmtree(DESTDIR, ignore_errors=True)
@@ -58,37 +81,28 @@ def main():
     rm(CHROME_EXT_NAME + ".crx")
     rm(CHROME_EXT_NAME + ".zip")
 
-    print "Packing Chrome extension ..."
-    call([PATH_TO_7ZIP, "a", "-mx=9", "-mmt=on", CHROME_EXT_NAME + ".zip", CHROME_EXT_DIR + "\\*"])
-
-    # https://grack.com/blog/2009/11/09/packing-chrome-extensions-in-python/
-    # Sign the zip file with the private key in PEM format
-    signature = Popen(["openssl", "sha1", "-sign", CHROME_EXT_NAME + ".pem", CHROME_EXT_NAME + ".zip"], stdout=PIPE).stdout.read();
-
-    # Convert the PEM key to DER (and extract the public form) for inclusion in the CRX header
-    derkey = Popen(["openssl", "rsa", "-pubout", "-inform", "PEM", "-outform", "DER", "-in", CHROME_EXT_NAME + ".pem"], stdout=PIPE).stdout.read();
+    print("Creating Chrome extension ...")
+    Popen([PATH_TO_7ZIP, "a", "-mx=9", "-mmt=on", CHROME_EXT_NAME + ".zip", CHROME_EXT_DIR + "\\*"], stdout=PIPE).stdout.read()
+    signature = Popen(["openssl", "sha1", "-sign", CHROME_EXT_NAME + ".pem", CHROME_EXT_NAME + ".zip"], stdout=PIPE).stdout.read()
+    derkey = Popen(["openssl", "rsa", "-pubout", "-inform", "PEM", "-outform", "DER", "-in", CHROME_EXT_NAME + ".pem"], stdout=PIPE).stdout.read()
 
     out = open(CHROME_EXT_NAME + ".crx", "wb");
-    out.write("Cr24")  # Extension file magic number
+    out.write(b"Cr24")
     header = array.array("l");
-    header.append(2); # Version 2
+    header.append(2);
     header.append(len(derkey));
     header.append(len(signature));
     header.tofile(out);
     out.write(derkey)
     out.write(signature)
     out.write(open(CHROME_EXT_NAME + ".zip", "rb").read())
+    out.close()
 
     ext_id = get_extension_id(CHROME_EXT_NAME + ".crx")
-    print "  id = " + ext_id
+    print("> id = " + ext_id)
 
-    print "Making directories ..."
+    print("Copying files ...")
     if not os.path.exists(DESTDIR): os.mkdir(DESTDIR)
-    if not os.path.exists(DESTDIR + "\\platforms"): os.mkdir(DESTDIR + "\\platforms")
-    # if not os.path.exists(DESTDIR + "\\resources"): os.mkdir(DESTDIR + "\\resources")
-    # if not os.path.exists(DESTDIR + "\\resources\\images"): os.mkdir(DESTDIR + "\\resources\\images")
-
-    print "Copying files ..."
     shutil.copy(SRCDIR + "\\LICENSE", DESTDIR)
     shutil.copy(SRCDIR + "\\LIESMICH.txt", DESTDIR)
     shutil.copy("x86\\ssleay32.dll", DESTDIR)
@@ -103,10 +117,24 @@ def main():
     shutil.copy(QTDIR + "\\icudt54.dll", DESTDIR)
     shutil.copy(QTDIR + "\\icuin54.dll", DESTDIR)
     shutil.copy(QTDIR + "\\icuuc54.dll", DESTDIR)
+    if not os.path.exists(DESTDIR + "\\platforms"): os.mkdir(DESTDIR + "\\platforms")
     shutil.copy(QTDIR + "\\..\\plugins\\platforms\\qminimal.dll", DESTDIR + "\\platforms")
     shutil.copy(QTDIR + "\\..\\plugins\\platforms\\qwindows.dll", DESTDIR + "\\platforms")
     shutil.copy(BUILDDIR + "\\Qt-SESAM.exe", DESTDIR)
     shutil.copytree(SRCDIR + "\\Qt-SESAM\\resources\\images", DESTDIR + "\\resources\\images")
+    with open(DESTDIR + "\\PORTABLE", "w") as text_file:
+        print("Removing this file will disable portability.", file=text_file)
+
+    print("Launching installer script ... (Patience, please!)")
+    Popen([PATH_TO_NSIS, "/V0", "Qt-SESAM-x86.nsi"], stdout=PIPE).stdout.read()
+
+    print("Build compressed archives ...")
+    Popen([PATH_TO_7ZIP, "a", "-mx=9", "-mmt=on", DESTDIR + ".zip", DESTDIR], stdout=PIPE).stdout.read()
+
+    print("Generating hash files ...")
+    writeHashFile(DESTDIR + ".zip")
+    for filename in glob.glob(INSTALLER_GLOB):
+        writeHashFile(filename)
 
 
 if __name__ == '__main__':
