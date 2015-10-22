@@ -1,16 +1,19 @@
 !define VERSIONMAJOR "2"
-!define VERSIONMINOR "0"
-!define VERSIONPATCH ".5"
+!define VERSIONMINOR "5"
+!define VERSIONPATCH ".0-DEV"
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}${VERSIONPATCH}"
 !define GUID "{f25f512a-7d58-4e2f-a52b-3663fd8ca813}"
 !define APP "Qt-SESAM"
 !define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
-!define QTDIR "D:\Qt\5.5\msvc2013_64\bin"
+!define QTDIR "D:\Qt\5.5\msvc2013\bin"
 !define SRCDIR "..\..\Qt-SESAM"
-!define BUILDDIR "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_64bit-Release\Qt-SESAM\release"
+!define BUILDDIR "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
+!define BUILDDIR_CHROME_EXT "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\SESAM2Chrome\release"
+!define CHROME_EXT "SESAM2Chrome"
+!define PATH_TO_CHROME "C:\Program Files (x86)\Google\Chrome\Application"
 
 Name "${APP} ${VERSION}"
-OutFile "${APP}-${VERSION}-x64-setup.exe"
+OutFile "${APP}-${VERSION}-x86-setup.exe"
 InstallDir $PROGRAMFILES\${APP}
 InstallDirRegKey HKLM "Software\${PUBLISHER}\${APP}" "Install_Dir"
 RequestExecutionLevel admin
@@ -31,14 +34,82 @@ ShowInstDetails show
 # FunctionEnd
 
 
+!define StrRep "!insertmacro StrRep"
+!macro StrRep output string old new
+    Push `${string}`
+    Push `${old}`
+    Push `${new}`
+    !ifdef __UNINSTALL__
+        Call un.StrRep
+    !else
+        Call StrRep
+    !endif
+    Pop ${output}
+!macroend
+ 
+!macro Func_StrRep un
+    Function ${un}StrRep
+        Exch $R2 ;new
+        Exch 1
+        Exch $R1 ;old
+        Exch 2
+        Exch $R0 ;string
+        Push $R3
+        Push $R4
+        Push $R5
+        Push $R6
+        Push $R7
+        Push $R8
+        Push $R9
+ 
+        StrCpy $R3 0
+        StrLen $R4 $R1
+        StrLen $R6 $R0
+        StrLen $R9 $R2
+        loop:
+            StrCpy $R5 $R0 $R4 $R3
+            StrCmp $R5 $R1 found
+            StrCmp $R3 $R6 done
+            IntOp $R3 $R3 + 1 ;move offset by 1 to check the next character
+            Goto loop
+        found:
+            StrCpy $R5 $R0 $R3
+            IntOp $R8 $R3 + $R4
+            StrCpy $R7 $R0 "" $R8
+            StrCpy $R0 $R5$R2$R7
+            StrLen $R6 $R0
+            IntOp $R3 $R3 + $R9 ;move offset by length of the replacement string
+            Goto loop
+        done:
+ 
+        Pop $R9
+        Pop $R8
+        Pop $R7
+        Pop $R6
+        Pop $R5
+        Pop $R4
+        Pop $R3
+        Push $R0
+        Push $R1
+        Pop $R0
+        Pop $R1
+        Pop $R0
+        Pop $R2
+        Exch $R1
+    FunctionEnd
+!macroend
+!insertmacro Func_StrRep ""
+!insertmacro Func_StrRep "un."
+
+
 Section "vcredist"
   ClearErrors
-  ReadRegDword $R0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}" "DisplayVersion"
+  ReadRegDword $R0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Version"
   ${If} $R0 != "12.0.21005"
     SetOutPath "$INSTDIR"
-    File "x64\vcredist_msvc2013_x64.exe"
-    ExecWait '"$INSTDIR\vcredist_msvc2013_x64.exe" /norestart /passive'
-    Delete "$INSTDIR\vcredist_msvc2013_x64.exe"
+    File "x86\vcredist_msvc2013_x86.exe"
+    ExecWait '"$INSTDIR\vcredist_msvc2013_x86.exe" /norestart /passive'
+    Delete "$INSTDIR\vcredist_msvc2013_x86.exe"
   ${EndIf}
 SectionEnd
 
@@ -51,15 +122,17 @@ Page directory
 
 Page instfiles
 
-
 Section "${APP}"
   SetOutPath "$INSTDIR"
+  CreateDirectory "$INSTDIR\platforms"
+  CreateDirectory "$INSTDIR\plugins"
+  CreateDirectory "$INSTDIR\plugins\imageformats"
   CreateDirectory "$INSTDIR\resources"
   CreateDirectory "$INSTDIR\resources\images"
   File "${BUILDDIR}\${APP}.exe"
   File "${SRCDIR}\LICENSE"
-  File "x64\libeay32.dll"
-  File "x64\ssleay32.dll"
+  File "x86\libeay32.dll"
+  File "x86\ssleay32.dll"
   File "${QTDIR}\Qt5Core.dll"
   File "${QTDIR}\Qt5Gui.dll"
   File "${QTDIR}\Qt5Widgets.dll"
@@ -72,6 +145,16 @@ Section "${APP}"
   SetOutPath "$INSTDIR\platforms"
   File "${QTDIR}\..\plugins\platforms\qminimal.dll"
   File "${QTDIR}\..\plugins\platforms\qwindows.dll"
+
+; SetOutPath "$INSTDIR\plugins\imageformats"
+; File "${QTDIR}\..\plugins\imageformats\qico.dll"
+; File "${QTDIR}\..\plugins\imageformats\qdds.dll"
+; File "${QTDIR}\..\plugins\imageformats\qgif.dll"
+; File "${QTDIR}\..\plugins\imageformats\qicns.dll"
+; File "${QTDIR}\..\plugins\imageformats\qjp2.dll"
+; File "${QTDIR}\..\plugins\imageformats\qjpeg.dll"
+; File "${QTDIR}\..\plugins\imageformats\qmng.dll"
+; File "${QTDIR}\..\plugins\imageformats\qsvg.dll"
 
   SetOutPath "$INSTDIR"
   WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -93,7 +176,25 @@ Section "${APP}"
   File /a /r "${SRCDIR}\Qt-SESAM\resources\images\"
 
   SetOutPath "$INSTDIR"
+SectionEnd
 
+
+Section "Chrome Extension"
+  WriteRegStr HKCU "Software\Google\Chrome\NativeMessagingHosts\de.ct.qtsesam" "" "$INSTDIR\manifest.json"
+  SetOutPath "$INSTDIR"
+  Var /GLOBAL CRXID
+  File "${BUILDDIR_CHROME_EXT}\${CHROME_EXT}.exe"
+  File "${CHROME_EXT}.crx"
+  File "crx_id.txt"
+  FileOpen $4 "crx_id.txt" r
+  FileSeek $4 0
+  FileRead $4 $CRXID 32
+  FileClose $4
+  FileOpen $4 "$INSTDIR\\manifest.json" w
+  Var /GLOBAL CRX
+  ${StrRep} $CRX "$INSTDIR\${CHROME_EXT}.exe" "\" "\\"
+  FileWrite $4 '{ "name": "de.ct.qtsesam", "description": "SESAM2Chrome", "path": "$CRX", "type": "stdio", "allowed_origins": [ "chrome-extension://$CRXID/" ] }'
+  FileClose $4
 SectionEnd
 
 
@@ -133,6 +234,8 @@ Section "Uninstall"
   Delete "$INSTDIR\platforms\qminimal.dll"
   Delete "$INSTDIR\platforms\qwindows.dll"
   RMDir "$INSTDIR\platforms"
+
+  Delete "$INSTDIR\${CHROME_EXT}.exe"
 
   Delete "$DESKTOP\${APP}-${VERSION}.lnk"
   Delete "$SMPROGRAMS\${APP}\*.*"

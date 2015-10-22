@@ -1,4 +1,3 @@
-bin/HashMaster.exe
 Qt-SESAM*.exe
 Qt-SESAM*.exe.txt
 Qt-SESAM*.exe.asc
@@ -8,3 +7,5 @@ QtSESAM-portable*
 SESAM2Chrome.pem
 SESAM2Chrome.zip
 *.crx
+crx_id.txt
+copy-release.cmd
