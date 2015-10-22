@@ -234,8 +234,12 @@ Section "Uninstall"
   Delete "$INSTDIR\platforms\qminimal.dll"
   Delete "$INSTDIR\platforms\qwindows.dll"
   RMDir "$INSTDIR\platforms"
+  RMDir /r "$INSTDIR\plugins"
 
   Delete "$INSTDIR\${CHROME_EXT}.exe"
+  Delete "$INSTDIR\${CHROME_EXT}.crx"
+  Delete "crx_id.txt"
+  Delete "manifest.json"
 
   Delete "$DESKTOP\${APP}-${VERSION}.lnk"
   Delete "$SMPROGRAMS\${APP}\*.*"
