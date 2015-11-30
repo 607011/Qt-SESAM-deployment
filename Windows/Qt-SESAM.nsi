@@ -1,14 +1,14 @@
 !define VERSIONMAJOR "2"
-!define VERSIONMINOR "5"
-!define VERSIONPATCH ".0-DEV"
+!define VERSIONMINOR "1"
+!define VERSIONPATCH ".0-BETA8"
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}${VERSIONPATCH}"
 !define GUID "{f25f512a-7d58-4e2f-a52b-3663fd8ca813}"
 !define APP "Qt-SESAM"
 !define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
 !define QTDIR "D:\Qt\5.5\msvc2013\bin"
 !define SRCDIR "..\..\Qt-SESAM"
-!define BUILDDIR "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\Qt-SESAM\release"
-!define BUILDDIR_CHROME_EXT "..\..\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\SESAM2Chrome\release"
+!define BUILDDIR "..\..\Qt-SESAM-Desktop_Qt_5_5_1_MSVC2013_32bit-Release\Qt-SESAM\release"
+!define BUILDDIR_CHROME_EXT "..\..\Qt-SESAM-Desktop_Qt_5_5_1_MSVC2013_32bit-Release\SESAM2Chrome\release"
 !define CHROME_EXT "SESAM2Chrome"
 !define PATH_TO_CHROME "C:\Program Files (x86)\Google\Chrome\Application"
 
@@ -138,6 +138,7 @@ Section "${APP}"
   File "${QTDIR}\Qt5Widgets.dll"
   File "${QTDIR}\Qt5Network.dll"
   File "${QTDIR}\Qt5Concurrent.dll"
+  File "${QTDIR}\Qt5Xml.dll"
   File "${QTDIR}\icudt54.dll"
   File "${QTDIR}\icuin54.dll"
   File "${QTDIR}\icuuc54.dll"
@@ -180,21 +181,21 @@ SectionEnd
 
 
 Section "Chrome Extension"
-  WriteRegStr HKCU "Software\Google\Chrome\NativeMessagingHosts\de.ct.qtsesam" "" "$INSTDIR\manifest.json"
-  SetOutPath "$INSTDIR"
-  Var /GLOBAL CRXID
-  File "${BUILDDIR_CHROME_EXT}\${CHROME_EXT}.exe"
-  File "${CHROME_EXT}.crx"
-  File "crx_id.txt"
-  FileOpen $4 "crx_id.txt" r
-  FileSeek $4 0
-  FileRead $4 $CRXID 32
-  FileClose $4
-  FileOpen $4 "$INSTDIR\\manifest.json" w
-  Var /GLOBAL CRX
-  ${StrRep} $CRX "$INSTDIR\${CHROME_EXT}.exe" "\" "\\"
-  FileWrite $4 '{ "name": "de.ct.qtsesam", "description": "SESAM2Chrome", "path": "$CRX", "type": "stdio", "allowed_origins": [ "chrome-extension://$CRXID/" ] }'
-  FileClose $4
+#  WriteRegStr HKCU "Software\Google\Chrome\NativeMessagingHosts\de.ct.qtsesam" "" "$INSTDIR\manifest.json"
+#  SetOutPath "$INSTDIR"
+#  Var /GLOBAL CRXID
+#  File "${BUILDDIR_CHROME_EXT}\${CHROME_EXT}.exe"
+#  File "${CHROME_EXT}.crx"
+#  File "crx_id.txt"
+#  FileOpen $4 "crx_id.txt" r
+#  FileSeek $4 0
+#  FileRead $4 $CRXID 32
+#  FileClose $4
+#  FileOpen $4 "$INSTDIR\\manifest.json" w
+#  Var /GLOBAL CRX
+#  ${StrRep} $CRX "$INSTDIR\${CHROME_EXT}.exe" "\" "\\"
+#  FileWrite $4 '{ "name": "de.ct.qtsesam", "description": "SESAM2Chrome", "path": "$CRX", "type": "stdio", "allowed_origins": [ "chrome-extension://$CRXID/" ] }'
+#  FileClose $4
 SectionEnd
 
 
@@ -225,6 +226,7 @@ Section "Uninstall"
   Delete "$INSTDIR\Qt5Widgets.dll"
   Delete "$INSTDIR\Qt5Network.dll"
   Delete "$INSTDIR\Qt5Concurrent.dll"
+  Delete "$INSTDIR\Qt5Xml.dll"
   Delete "$INSTDIR\Qt5Test.dll"
   Delete "$INSTDIR\icudt54.dll"
   Delete "$INSTDIR\icuin54.dll"
@@ -238,6 +240,8 @@ Section "Uninstall"
 
   Delete "$INSTDIR\${CHROME_EXT}.exe"
   Delete "$INSTDIR\${CHROME_EXT}.crx"
+  Delete "$INSTDIR\crx_id.txt"
+  Delete "$INSTDIR\manifest.json"
   Delete "crx_id.txt"
   Delete "manifest.json"
 

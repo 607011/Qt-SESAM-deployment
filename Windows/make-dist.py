@@ -29,7 +29,7 @@ CHROME_EXT_NAME="SESAM2Chrome"
 CHROME_EXT_DIR="D:\\Workspace\\Qt-SESAM\\SESAM2Chrome\\extension"
 DESTDIR="QtSESAM-portable"
 QTDIR="D:\\Qt\\5.5\\msvc2013\\bin"
-BUILDDIR="..\\..\\Qt-SESAM-Desktop_Qt_5_5_0_MSVC2013_32bit-Release\\Qt-SESAM\\release"
+BUILDDIR="..\\..\\Qt-SESAM-Desktop_Qt_5_5_1_MSVC2013_32bit-Release\\Qt-SESAM\\release"
 PATH_TO_NSIS="D:\\Developer\\NSIS\\makensis.exe"
 PATH_TO_7ZIP="C:\\Program Files\\7-Zip\\7z.exe"
 INSTALLER_GLOB="Qt-SESAM-*-setup.exe"
@@ -88,6 +88,7 @@ def main():
     rm(CHROME_EXT_NAME + ".zip")
     if not os.path.exists(DESTDIR): os.mkdir(DESTDIR)
 
+    """
     print("Creating Chrome extension ...")
     Popen([PATH_TO_7ZIP, "a", "-mx=9", "-mmt=on", CHROME_EXT_NAME + ".zip", CHROME_EXT_DIR + "\\*"], stdout=PIPE).stdout.read()
     signature = Popen(["openssl", "sha1", "-sign", CHROME_EXT_NAME + ".pem", CHROME_EXT_NAME + ".zip"], stdout=PIPE).stdout.read()
@@ -106,6 +107,7 @@ def main():
 
     with open("crx_id.txt", "w+") as crx_id_file:
         print(get_extension_id(CHROME_EXT_NAME + ".crx"), file=crx_id_file)
+    """
 
     print("Copying files ...")
     shutil.copy(SRCDIR + "\\LICENSE", DESTDIR)
@@ -118,6 +120,7 @@ def main():
     shutil.copy(QTDIR + "\\Qt5Gui.dll", DESTDIR)
     shutil.copy(QTDIR + "\\Qt5Widgets.dll", DESTDIR)
     shutil.copy(QTDIR + "\\Qt5Network.dll", DESTDIR)
+    shutil.copy(QTDIR + "\\Qt5Xml.dll", DESTDIR)
     shutil.copy(QTDIR + "\\Qt5Concurrent.dll", DESTDIR)
     shutil.copy(QTDIR + "\\icudt54.dll", DESTDIR)
     shutil.copy(QTDIR + "\\icuin54.dll", DESTDIR)
@@ -129,7 +132,10 @@ def main():
     shutil.copytree(SRCDIR + "\\Qt-SESAM\\resources\\images", DESTDIR + "\\resources\\images")
     with open(DESTDIR + "\\PORTABLE", "w") as text_file:
         print("Removing this file will disable portability.", file=text_file)
+
+    """
     shutil.copy(BUILDDIR + "\\..\\..\\" + CHROME_EXT_NAME + "\\release\\" + CHROME_EXT_NAME + ".exe", DESTDIR)
+    """
 
     print("Launching installer script ... (Patience, please!)")
     Popen([PATH_TO_NSIS, "/V1", "Qt-SESAM.nsi"], stdout=PIPE).stdout.read()
