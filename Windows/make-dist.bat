@@ -1,0 +1,1 @@
+@D:\Python35-32\python.exe make-dist.py

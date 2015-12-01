@@ -59,7 +59,7 @@ def rm(fn):
 def writeHashFile(fn):
     filename = os.path.basename(fn)
     out = open(filename + ".txt", "w")
-    out.write("*" + filename + ".txt\n")
+    out.write("*" + filename + "\n")
     md5 = hashlib.md5()
     sha1 = hashlib.sha1()
     sha256 = hashlib.sha256()
